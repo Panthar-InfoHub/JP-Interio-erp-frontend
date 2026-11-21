@@ -16,7 +16,8 @@ import { useListParams } from "@/hooks/useListParams";
 import { ACCOUNT_STATUS, PARTNER_TYPE_LABELS } from "@/lib/labels/partner";
 import { useAuthStore } from "@/stores/auth.store";
 
-const FILTERS = ["zoneId", "partnerType", "status", "asmId"] as const;
+// salesExecutiveId has no picker: it comes only from the staff details link (F6 T2).
+const FILTERS = ["zoneId", "partnerType", "status", "asmId", "salesExecutiveId"] as const;
 
 const STATUS_OPTIONS = Object.fromEntries(
   Object.entries(ACCOUNT_STATUS).map(([value, { label }]) => [value, label]),

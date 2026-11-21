@@ -19,6 +19,9 @@ const AREA_LABELS: Record<SubAdminArea, string> = {
   requests: "Requests",
 };
 
+/** Every Sub-Admin area, in the order to offer them. */
+export const SUB_ADMIN_AREAS = Object.keys(AREA_LABELS) as SubAdminArea[];
+
 export function roleLabel(role: RoleKey): string {
   return ROLE_LABELS[role];
 }

@@ -7,9 +7,15 @@ export const queryKeys = {
     all: ["zones"] as const,
     /** Active zones for pickers and filters. */
     options: ["zones", "options"] as const,
+    list: (query: Record<string, string | number>) => ["zones", "list", query] as const,
   },
   users: {
     all: ["users"] as const,
+    /** Active Zonal Heads with no zone: the ones who can be put in charge of a zone. */
+    spareZonalHeads: ["users", "spare-zonal-heads"] as const,
+    list: (query: Record<string, string | number>) => ["users", "list", query] as const,
+    detail: (id: string) => ["users", "detail", id] as const,
+    orgTree: ["users", "org-tree"] as const,
     /** Active ASMs for pickers and filters (optionally one zone). */
     asmOptions: (zoneId: string | null) => ["users", "asm-options", zoneId] as const,
     /** Admins, Sub-Admins and Zonal Heads: the staff who make ledger lines. */
