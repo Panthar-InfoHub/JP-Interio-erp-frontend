@@ -16,8 +16,10 @@ interface OrgNodeProps {
   /** "Zonal Head", "ASM" … */
   role?: string;
   suspended?: boolean;
-  /** Short counts, e.g. "3 SEs · 12 partners". */
-  counts?: string;
+  /** Short counts, e.g. "3 SEs · 12 partners" (may be a link). */
+  counts?: ReactNode;
+  /** A "…" menu at the end of the line (e.g. the category tree, DEC-269). */
+  actions?: ReactNode;
   /** Extra labels such as "No Sales Executives". */
   badges?: ReactNode;
   /** Bigger text for the top level (a zone). */
@@ -38,6 +40,7 @@ export function OrgNode({
   role,
   suspended = false,
   counts,
+  actions,
   badges,
   strong = false,
   children,
@@ -75,8 +78,14 @@ export function OrgNode({
         {role ? <span className="text-xs text-muted-foreground">{role}</span> : null}
         {suspended ? <StatusBadge tone="warning">Suspended</StatusBadge> : null}
         {badges}
-        {counts ? (
-          <span className="text-xs text-muted-foreground tabular-nums sm:ml-auto">{counts}</span>
+        {counts || actions ? (
+          // With a menu the end group always sits on the right, so the "…" never wraps left.
+          <span className={cn("flex items-center gap-2", actions ? "ml-auto" : "sm:ml-auto")}>
+            {counts ? (
+              <span className="text-xs text-muted-foreground tabular-nums">{counts}</span>
+            ) : null}
+            {actions}
+          </span>
         ) : null}
       </div>
       {canOpen && isOpen ? (

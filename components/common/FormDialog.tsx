@@ -1,7 +1,9 @@
 "use client";
 
+import { CircleAlert } from "lucide-react";
 import type { FormEventHandler, ReactNode } from "react";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,6 +28,11 @@ interface FormDialogProps {
   /** "md" for longer forms. */
   size?: "sm" | "md";
   destructive?: boolean;
+  /**
+   * A failure that belongs to no single field (e.g. a 409 name / code clash, DEC-268):
+   * shown as a red box above the fields while the pop-up stays open.
+   */
+  formError?: string | null;
   children: ReactNode;
 }
 
@@ -43,6 +50,7 @@ export function FormDialog({
   onSubmit,
   size = "sm",
   destructive = false,
+  formError,
   children,
 }: FormDialogProps) {
   return (
@@ -53,6 +61,12 @@ export function FormDialog({
             <DialogTitle>{title}</DialogTitle>
             {description ? <DialogDescription>{description}</DialogDescription> : null}
           </DialogHeader>
+          {formError ? (
+            <Alert variant="destructive" className="border-destructive/40">
+              <CircleAlert />
+              <AlertDescription>{formError}</AlertDescription>
+            </Alert>
+          ) : null}
           <div className="-mx-4 max-h-[60vh] overflow-y-auto px-4">{children}</div>
           <DialogFooter>
             <Button

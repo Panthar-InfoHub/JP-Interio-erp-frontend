@@ -50,4 +50,20 @@ export const queryKeys = {
     list: (query: Record<string, string | number>) => ["payouts", "list", query] as const,
     detail: (id: string) => ["payouts", "detail", id] as const,
   },
+  /** Brands, categories and products share one root: a change to one can change the others' counts. */
+  catalog: {
+    all: ["catalog"] as const,
+    brands: (query: Record<string, string | number>) => ["catalog", "brands", query] as const,
+    categoryTree: ["catalog", "category-tree"] as const,
+    /** Every brand (on and off) for filters and pickers. */
+    brandOptions: ["catalog", "brand-options"] as const,
+    products: (query: Record<string, string | number>) => ["catalog", "products", query] as const,
+    /** The app catalog preview (what partners see). */
+    app: {
+      products: (query: Record<string, string | number>) =>
+        ["catalog", "app", "products", query] as const,
+      categories: ["catalog", "app", "categories"] as const,
+      brands: ["catalog", "app", "brands"] as const,
+    },
+  },
 };

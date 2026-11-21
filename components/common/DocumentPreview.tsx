@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 function isPdf(url: string): boolean {
   return /\.pdf(\?|#|$)/i.test(url);
@@ -19,7 +20,16 @@ function isPdf(url: string): boolean {
  * A KYC document file (DEC-240): photos show as a small thumbnail that opens large in a
  * pop-up; PDFs open in a new tab. Files are public R2 links (DEC-084).
  */
-export function DocumentPreview({ url, title }: { url: string | null | undefined; title: string }) {
+export function DocumentPreview({
+  url,
+  title,
+  thumbClassName = "h-28 w-44",
+}: {
+  url: string | null | undefined;
+  title: string;
+  /** Size of the small picture (e.g. "size-12" in a table row). */
+  thumbClassName?: string;
+}) {
   if (!url) return <span className="text-sm text-muted-foreground">No file</span>;
 
   if (isPdf(url)) {
@@ -55,7 +65,7 @@ export function DocumentPreview({ url, title }: { url: string | null | undefined
           alt={title}
           loading="lazy"
           decoding="async"
-          className="h-28 w-44 object-cover transition-transform group-hover:scale-105"
+          className={cn(thumbClassName, "object-cover transition-transform group-hover:scale-105")}
         />
       </DialogTrigger>
       <DialogContent className="sm:max-w-3xl">
