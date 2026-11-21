@@ -737,6 +737,8 @@ export interface operations {
                 status?: components["parameters"]["Status"];
                 /** @description The partner's **current** zone */
                 zoneId?: string;
+                /** @description Only this partner's payouts (0.1.1, DEC-258). Still limited to your scope; a partner outside it gives an empty list */
+                partnerId?: string;
                 /** @description Part of the partner's name, business name or phone, or of the payout number (any case) */
                 search?: string;
                 /** @description Requested at or after this moment. A date-time **with a time zone** (write `+` as `%2B` in the address). */

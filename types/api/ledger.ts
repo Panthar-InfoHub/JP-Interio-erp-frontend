@@ -594,6 +594,8 @@ export interface operations {
                         data?: {
                             /** Format: uuid */
                             partnerId: string;
+                            /** @description Who the partner is (0.2.1, DEC-256), for staff without Partner 360 */
+                            partner: components["schemas"]["LinePartner"];
                             wallet: components["schemas"]["Wallet"] | null;
                             /** @example No wallet yet: the partner isn't verified. */
                             note: string | null;

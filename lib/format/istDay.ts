@@ -18,6 +18,27 @@ export function istDayEnd(day: string): string {
   return `${day}T23:59:59.999${IST_OFFSET}`;
 }
 
+/**
+ * A list query whose `from` / `to` are plain days (as kept in the page address) → the
+ * same query with India-time moments for the API. A bad day (hand-edited address) is
+ * left out rather than breaking the page.
+ */
+export function withIstMoments(
+  query: Record<string, string | number>,
+): Record<string, string | number> {
+  const result = { ...query };
+  for (const [key, toMoment] of [
+    ["from", istDayStart],
+    ["to", istDayEnd],
+  ] as const) {
+    const value = result[key];
+    if (typeof value !== "string") continue;
+    if (DAY.test(value)) result[key] = toMoment(value);
+    else delete result[key];
+  }
+  return result;
+}
+
 /** Today's date in India as "YYYY-MM-DD" (whatever the computer's own time zone). */
 export function todayInIndia(): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
