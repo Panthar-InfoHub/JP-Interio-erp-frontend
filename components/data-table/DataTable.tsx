@@ -39,11 +39,12 @@ export interface DataTableProps<T extends RowData> {
   isFetching?: boolean;
   error?: unknown;
   onRetry?: () => void;
-  /** Current sort from the address, e.g. "-createdAt". */
-  sort: string;
-  onSortChange: (sort: string) => void;
-  onPageChange: (page: number) => void;
-  onLimitChange: (limit: number) => void;
+  /** Current sort from the address, e.g. "-createdAt". Leave out for a list that can't be sorted. */
+  sort?: string;
+  onSortChange?: (sort: string) => void;
+  /** Leave the paging props out for a short list the server sends whole (no pagination bar). */
+  onPageChange?: (page: number) => void;
+  onLimitChange?: (limit: number) => void;
   /** Opens a row (e.g. its details page). Rows are not clickable without it. */
   onRowClick?: (row: T) => void;
   emptyTitle?: string;
@@ -72,7 +73,7 @@ export function DataTable<T extends RowData>({
   isFetching = false,
   error,
   onRetry,
-  sort,
+  sort = "",
   onSortChange,
   onPageChange,
   onLimitChange,
@@ -144,7 +145,7 @@ export function DataTable<T extends RowData>({
                                 : undefined
                           }
                         >
-                          {header.isPlaceholder ? null : columnMeta?.sortField ? (
+                          {header.isPlaceholder ? null : columnMeta?.sortField && onSortChange ? (
                             <SortableHeader
                               direction={direction}
                               align={align}
@@ -235,7 +236,7 @@ export function DataTable<T extends RowData>({
                                   <dt className="text-muted-foreground">
                                     {header ? headerLabel(header) : ""}
                                   </dt>
-                                  <dd className="min-w-0 break-words">
+                                  <dd className="min-w-0 wrap-break-word">
                                     <table.FlexRender cell={cell} />
                                   </dd>
                                 </div>
@@ -250,7 +251,7 @@ export function DataTable<T extends RowData>({
         )}
       </div>
 
-      {meta && !showError && meta.total > 0 ? (
+      {meta && onPageChange && onLimitChange && !showError && meta.total > 0 ? (
         <DataTablePagination
           meta={meta}
           onPageChange={onPageChange}

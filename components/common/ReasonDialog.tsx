@@ -34,6 +34,8 @@ interface ReasonDialogProps {
   pending?: boolean;
   /** Gets the trimmed text. */
   onConfirm: (reason: string) => void;
+  /** One-click reasons that fill the box (the text can still be edited). */
+  suggestions?: readonly string[];
 }
 
 /**
@@ -52,6 +54,7 @@ export function ReasonDialog({
   destructive = false,
   pending = false,
   onConfirm,
+  suggestions = [],
 }: ReasonDialogProps) {
   const schema = useMemo(
     () =>
@@ -90,6 +93,26 @@ export function ReasonDialog({
 
           <Field data-invalid={Boolean(error)}>
             <FieldLabel htmlFor="reason-text">{label}</FieldLabel>
+            {suggestions.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5" aria-label="Quick reasons">
+                {suggestions.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    disabled={pending}
+                    onClick={() =>
+                      form.setValue("reason", suggestion, {
+                        shouldValidate: form.formState.isSubmitted,
+                        shouldDirty: true,
+                      })
+                    }
+                    className="rounded-full border px-2.5 py-1 text-left text-xs hover:border-primary/40 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            ) : null}
             <Textarea
               id="reason-text"
               rows={4}

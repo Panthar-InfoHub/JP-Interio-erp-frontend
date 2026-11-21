@@ -33,6 +33,11 @@ export interface NavItem {
   anyOf: readonly Capability[];
   /** Plan area that builds the page (F3 – F13); shown on the "coming soon" page. */
   area: string;
+  /**
+   * Works for a Zonal Head who has no zone yet (e.g. My tasks). Every other page shows
+   * "You aren't assigned to a zone yet" to them (DEC-238).
+   */
+  zoneFree?: boolean;
 }
 
 export interface NavGroup {
@@ -122,6 +127,7 @@ export const NAVIGATION: readonly NavGroup[] = [
         icon: ListChecks,
         anyOf: ["tasks.complete"],
         area: "F10",
+        zoneFree: true,
       },
       {
         label: "Requests",

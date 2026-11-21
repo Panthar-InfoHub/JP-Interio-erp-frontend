@@ -31,7 +31,8 @@ export interface ListParams<F extends string> {
   setSearch: (search: string) => void;
   /** Change several filters at once; goes back to page 1. */
   setFilters: (changes: Partial<Record<F, string | null>>) => void;
-  clearFilters: () => void;
+  /** Clears the search and every filter, except those named in `keep` (e.g. a tab). */
+  clearFilters: (keep?: readonly F[]) => void;
 }
 
 /**
@@ -103,9 +104,11 @@ export function useListParams<F extends string = never>({
     setSort: (next) => update({ sort: next }, true),
     setSearch: (next) => update({ search: next }, true),
     setFilters: (changes) => update(changes as Record<string, string | null>, true),
-    clearFilters: () => {
+    clearFilters: (keep = []) => {
       const cleared: Record<string, null> = { search: null };
-      for (const name of Object.keys(filters)) cleared[name] = null;
+      for (const name of Object.keys(filters) as F[]) {
+        if (!keep.includes(name)) cleared[name] = null;
+      }
       update(cleared, true);
     },
   };

@@ -80,7 +80,9 @@
   --border: #e3e0d9;
   --input: #e3e0d9;
   --ring: #284239;
-  --chart-1: #284239;
+  /* chart-1: brand-family green that passes the chart colour checks (lightness, chroma,
+     contrast); the dark brand green reads as near-black on a bar (DEC-237). */
+  --chart-1: #2a8c62;
   --chart-2: #4f7a6c;
   --chart-3: #8fb0a2;
   --chart-4: #c4a35a;

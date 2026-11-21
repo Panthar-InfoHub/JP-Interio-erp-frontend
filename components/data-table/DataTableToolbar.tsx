@@ -26,7 +26,7 @@ export function DataTableToolbar({ search, children, isFiltered, onClear }: Data
       ) : null}
       {children}
       {isFiltered ? (
-        <Button variant="ghost" onClick={onClear} className="self-start sm:self-auto">
+        <Button variant="ghost" onClick={() => onClear()} className="self-start sm:self-auto">
           <FilterX data-icon="inline-start" />
           Clear filters
         </Button>
