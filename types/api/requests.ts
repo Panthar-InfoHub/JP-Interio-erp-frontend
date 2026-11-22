@@ -80,6 +80,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * All requests (web panel)
+         * @description **`requests.view`, web app only** (Admin, Requests Sub-Admin, Zonal Head; DEC-279, DEC-280). Every request you
+         *     may see: Admin / Requests Sub-Admin all; Zonal Head partners **now** in their zone. ASM / Sales Executive use
+         *     the worklist; anyone on another app (field, partner) → **403**.
+         *
+         *     **All states by default** (`state=open` / `finished` to narrow). Newest first, paged. The filters sit **on top
+         *     of** your scope, so a filter outside it (e.g. a Zonal Head sending another zone's `zoneId`) gives an **empty
+         *     list**, not an error. Each row also has the partner's **current zone**.
+         */
+        get: operations["listAllRequests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/requests/worklist": {
         parameters: {
             query?: never;
@@ -113,7 +139,8 @@ export interface paths {
         };
         /**
          * One request, with the full timeline
-         * @description **`requests.view`, within scope.** Everything: products, price, payment and refund details with receipt links
+         * @description **`requests.view`, within scope, staff apps only** (a partner → **403** since 0.2.0, DEC-280; partners use
+         *     `GET /partner/requests/{id}`). Everything: products, price, payment and refund details with receipt links
          *     and who recorded them, reasons, and the full timeline (every stage and hand-over, with names and reasons).
          */
         get: operations["getRequest"];
@@ -582,6 +609,16 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
         };
+        /** @description A `StaffRequestRow` plus the partner's current zone (`GET /requests` only) */
+        AllRequestsRow: components["schemas"]["StaffRequestRow"] & {
+            /** @description The partner's zone now; null if none */
+            zone?: {
+                /** Format: uuid */
+                id: string;
+                /** @example TEST Pune */
+                name: string;
+            } | null;
+        };
         MoneyRecord: {
             /** Format: date */
             date: string;
@@ -746,7 +783,7 @@ export interface components {
                 "application/json": components["schemas"]["ErrorEnvelope"];
             };
         };
-        /** @description You don't have the permission for this endpoint (e.g. a Zonal Head trying a step) */
+        /** @description You don't have the permission for this endpoint (e.g. a Zonal Head trying a step), or it isn't for your app (a partner on a staff view; field staff on the all-requests list) */
         Forbidden: {
             headers: {
                 [name: string]: unknown;
@@ -973,6 +1010,51 @@ export interface operations {
             403: components["responses"]["NotVerifiedOrForbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["StepConflict"];
+        };
+    };
+    listAllRequests: {
+        parameters: {
+            query?: {
+                page?: components["parameters"]["Page"];
+                limit?: components["parameters"]["Limit"];
+                sort?: "createdAt" | "-createdAt" | "updatedAt" | "-updatedAt";
+                state?: "open" | "finished" | "all";
+                status?: components["parameters"]["Status"];
+                category?: components["parameters"]["Category"];
+                /** @description The partner's current zone */
+                zoneId?: string;
+                /** @description The ASM or Sales Executive handling it now */
+                handlerId?: string;
+                /** @description Handled by this ASM or by any of their Sales Executives */
+                asmId?: string;
+                /** @description Part of the request number, or of the partner's name, business name or phone (any case) */
+                search?: string;
+                /** @description Made at or after this moment. A date-time **with a time zone** (write `+` as `%2B` in the address). */
+                from?: components["parameters"]["From"];
+                /** @description Made at or before this moment. Must not be before `from`. */
+                to?: components["parameters"]["To"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requests */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuccessEnvelope"] & {
+                        data?: components["schemas"]["AllRequestsRow"][];
+                        meta?: components["schemas"]["PageMeta"];
+                    };
+                };
+            };
+            400: components["responses"]["ValidationError"];
+            401: components["responses"]["NotLoggedIn"];
+            403: components["responses"]["Forbidden"];
         };
     };
     requestWorklist: {

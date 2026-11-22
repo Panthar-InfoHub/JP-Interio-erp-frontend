@@ -7,7 +7,7 @@ import type { Partner360 } from "@/types/partner";
  * Summary boxes from Partner 360. The server includes each box only for roles allowed to
  * see it (points: ledger.view, payouts: payouts.view, requests: requests.view,
  * tickets: Admin), so a missing box is simply not shown. The full Points / Scans /
- * Payouts lists are tabs below (DEC-258).
+ * Payouts / Requests lists are tabs below (DEC-258, DEC-283); "Requests open" opens its tab.
  */
 export function PartnerSummary({ partner }: { partner: Partner360 }) {
   const { points, payouts, requests, tickets } = partner;
@@ -51,6 +51,8 @@ export function PartnerSummary({ partner }: { partner: Partner360 }) {
           label="Requests open"
           value={formatCount(requests.open)}
           hint={`${formatCount(requests.total)} in total`}
+          // Opens the Requests tab below (DEC-283).
+          href={`/partners/${partner.partnerId}?tab=requests`}
         />
       ) : null}
       {tickets ? (

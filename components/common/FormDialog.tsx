@@ -33,6 +33,11 @@ interface FormDialogProps {
    * shown as a red box above the fields while the pop-up stays open.
    */
   formError?: string | null;
+  /** The left button's text and action (default "Cancel", which closes), e.g. "Back" on a review step. */
+  cancelLabel?: string;
+  onCancel?: () => void;
+  /** Keep the submit button off until something is done (e.g. a typed confirmation). */
+  submitDisabled?: boolean;
   children: ReactNode;
 }
 
@@ -51,6 +56,9 @@ export function FormDialog({
   size = "sm",
   destructive = false,
   formError,
+  cancelLabel = "Cancel",
+  onCancel,
+  submitDisabled = false,
   children,
 }: FormDialogProps) {
   return (
@@ -73,14 +81,14 @@ export function FormDialog({
               type="button"
               variant="outline"
               disabled={pending}
-              onClick={() => onOpenChange(false)}
+              onClick={() => (onCancel ? onCancel() : onOpenChange(false))}
             >
-              Cancel
+              {cancelLabel}
             </Button>
             <Button
               type="submit"
               variant={destructive ? "destructive" : "default"}
-              disabled={pending}
+              disabled={pending || submitDisabled}
             >
               {pending ? <Spinner data-icon="inline-start" /> : null}
               {submitLabel}

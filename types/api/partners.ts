@@ -287,8 +287,9 @@ export interface paths {
         };
         /**
          * A partner's shipment / sample requests (history)
-         * @description **`requests.view`, within scope** (Module 11, DEC-173). The way the Zonal Head, Requests Sub-Admin and Admin
-         *     find requests (there is no standalone all-requests list). Only the requests **you** may see:
+         * @description **`requests.view`, within scope, staff apps only** (Module 11, DEC-173; a partner → **403** since 0.10.0,
+         *     DEC-280). One partner's history; all requests at once are in `GET /requests` (**Requests** file, web panel
+         *     only). Only the requests **you** may see:
          *     Admin / Requests Sub-Admin all; Zonal Head partners now in their zone; ASM requests handled by them or their
          *     Sales Executives plus all requests of partners they own now; Sales Executive only the ones they handle now.
          *     A partner outside your scope (with no request you may see) → **404**.
@@ -385,6 +386,46 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description One request in a partner's history (the same fields as `StaffRequestRow` in the Requests file) */
+        PartnerRequestRow: {
+            /** Format: uuid */
+            id: string;
+            /** @example REQ-2026-000003 */
+            requestNo: string;
+            /** @enum {string} */
+            category: "shipment" | "sample";
+            /** @enum {string} */
+            status: "requested" | "accepted" | "rejected" | "payment_received" | "processing" | "dispatched" | "delivered" | "completed" | "cancelled" | "refund_initiated" | "refunded";
+            partner: {
+                /** Format: uuid */
+                id: string;
+                name: string | null;
+                /** @example 919000000143 */
+                phone: string;
+                businessName: string | null;
+            };
+            handler: {
+                /** Format: uuid */
+                id: string;
+                name: string | null;
+                /** @enum {string} */
+                role: "asm" | "sales_executive";
+            };
+            itemCount: number;
+            /**
+             * @description Rupees; null until accepted and for samples
+             * @example 40000.00
+             */
+            agreedAmount: string | null;
+            /** Format: date */
+            preferredDeliveryDate: string;
+            /** @description true = cancelled after payment, waiting for its refund (still open) */
+            refundDue: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
         PayoutAccount: {
             /** Format: uuid */
             id: string;
@@ -448,7 +489,7 @@ export interface components {
             /** @enum {string} */
             accountStatus: "active" | "suspended" | "deactivated";
             /** @enum {string} */
-            kycState: "not_submitted" | "pending" | "approved" | "rejected";
+            kycState: "not_submitted" | "pending" | "verified" | "rejected";
             /** @enum {string} */
             onboardingStep: "basic_info" | "firm_details" | "payout_account" | "kyc_documents" | "submitted";
             /** Format: date-time */
@@ -1248,7 +1289,7 @@ export interface operations {
                                 };
                             };
                             /** @description Same rows as the worklist (`StaffRequestRow` in the Requests file) */
-                            items: Record<string, never>[];
+                            items: components["schemas"]["PartnerRequestRow"][];
                         };
                         meta?: {
                             page: number;

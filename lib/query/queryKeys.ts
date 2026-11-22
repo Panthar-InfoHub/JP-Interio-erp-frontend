@@ -66,4 +66,25 @@ export const queryKeys = {
       brands: ["catalog", "app", "brands"] as const,
     },
   },
+  requests: {
+    all: ["requests"] as const,
+    list: (query: Record<string, string | number>) => ["requests", "list", query] as const,
+    detail: (id: string) => ["requests", "detail", id] as const,
+    partner: (partnerId: string, query: Record<string, string | number>) =>
+      ["requests", "partner", partnerId, query] as const,
+  },
+  /** Searchable staff pickers (ASM / handler filters). */
+  people: {
+    search: (kind: string, zoneId: string | null, search: string) =>
+      ["people", kind, zoneId, search] as const,
+  },
+  qr: {
+    all: ["qr"] as const,
+    batches: (query: Record<string, string | number>) => ["qr", "batches", query] as const,
+    batch: (id: string) => ["qr", "batch", id] as const,
+    codes: (id: string, query: Record<string, string | number>) =>
+      ["qr", "codes", id, query] as const,
+    /** The product picker / filter for QR batches (switched-on products only). */
+    products: (search: string) => ["qr", "products", search] as const,
+  },
 };
