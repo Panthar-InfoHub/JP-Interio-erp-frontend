@@ -44,6 +44,13 @@ export function todayInIndia(): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
 }
 
+/** "2026-11-22" + 7 → "2026-11-29" (calendar days, no time-zone shift). */
+export function addDays(day: string, days: number): string {
+  if (!DAY.test(day)) throw new Error(`Not a day: ${day}`);
+  const [year, month, date] = day.split("-").map(Number);
+  return new Date(Date.UTC(year!, month! - 1, date! + days)).toISOString().slice(0, 10);
+}
+
 /** A local calendar Date (from the date picker) → "YYYY-MM-DD", no time-zone shift. */
 export function toDayString(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, "0");

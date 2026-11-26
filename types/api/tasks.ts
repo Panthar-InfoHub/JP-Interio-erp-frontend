@@ -520,7 +520,8 @@ export interface operations {
                 limit?: components["parameters"]["Limit"];
                 /** @description `completedAt` sorts tasks not completed yet last */
                 sort?: "createdAt" | "-createdAt" | "dueDate" | "-dueDate" | "completedAt" | "-completedAt";
-                status?: components["schemas"]["TaskStatus"];
+                /** @description One status, or `unfinished` = open + in progress (DEC-289) */
+                status?: "open" | "in_progress" | "completed" | "cancelled" | "unfinished";
                 priority?: components["schemas"]["TaskPriority"];
                 /** @description Exact category, any capitals (e.g. `dealer visit`) */
                 category?: string;

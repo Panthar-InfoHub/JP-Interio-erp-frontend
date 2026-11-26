@@ -19,6 +19,21 @@ const AREA_LABELS: Record<SubAdminArea, string> = {
   requests: "Requests",
 };
 
+/** What each area unlocks (docs/api/settings-permissions.openapi.yaml, DEC-302). */
+const AREA_UNLOCKS: Record<SubAdminArea, string> = {
+  partners: "Partners & KYC review; Partners and Regions reports.",
+  rewards:
+    "Points ledger, adjustments and payouts; Scans, Points issued, Payouts reports and points liability.",
+  products: "Brands, categories and products; Products report.",
+  qr: "QR batches; Scans report.",
+  tasks: "Give, edit, cancel and see all field tasks; Tasks report.",
+  requests: "Shipment and sample requests; Requests report.",
+};
+
+export function areaUnlocks(area: SubAdminArea): string {
+  return AREA_UNLOCKS[area];
+}
+
 /** Every Sub-Admin area, in the order to offer them. */
 export const SUB_ADMIN_AREAS = Object.keys(AREA_LABELS) as SubAdminArea[];
 

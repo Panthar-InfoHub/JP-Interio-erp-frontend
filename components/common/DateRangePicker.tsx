@@ -21,6 +21,8 @@ interface DateRangePickerProps {
   value: DayRange;
   onChange: (range: DayRange) => void;
   placeholder?: string;
+  /** Let future days be picked too (e.g. due dates). Default: up to today only. */
+  allowFuture?: boolean;
   className?: string;
 }
 
@@ -41,6 +43,7 @@ export function DateRangePicker({
   value,
   onChange,
   placeholder = "Any date",
+  allowFuture = false,
   className,
 }: DateRangePickerProps) {
   const [open, setOpen] = useState(false);
@@ -77,7 +80,7 @@ export function DateRangePicker({
             numberOfMonths={1}
             selected={selected}
             defaultMonth={selected?.from ?? today}
-            disabled={today ? { after: today } : undefined}
+            disabled={today && !allowFuture ? { after: today } : undefined}
             onSelect={(range) =>
               onChange({
                 from: range?.from ? toDayString(range.from) : null,

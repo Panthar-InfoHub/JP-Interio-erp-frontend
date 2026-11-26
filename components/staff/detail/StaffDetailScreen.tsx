@@ -2,7 +2,7 @@
 
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 
 import { ErrorState, NotFoundState } from "@/components/common/StateMessages";
 import { StaffDetailsCard } from "@/components/staff/detail/StaffDetailsCard";
@@ -11,15 +11,18 @@ import { StaffSummary } from "@/components/staff/detail/StaffSummary";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useStaffMember } from "@/hooks/staff/useStaff";
 import { isApiError } from "@/lib/api/errors";
+import { safeFrom } from "@/lib/navigation/returnTo";
 
+/** Back to the page that opened it (`?from=`, e.g. Sub-Admins, DEC-302), else to Staff. */
 function BackLink() {
+  const from = safeFrom(useSearchParams().get("from"));
   return (
     <Link
-      href="/staff"
+      href={from ?? "/staff"}
       className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
     >
       <ArrowLeft className="size-4" aria-hidden />
-      Staff
+      {from ? "Back" : "Staff"}
     </Link>
   );
 }

@@ -14,7 +14,8 @@ function query(params: Record<string, string>) {
 /**
  * Team and task numbers from the server (DEC-063, DEC-184). Team boxes open the matching
  * list: a Zonal Head's zone, an ASM's direct team, the partners they own or look after.
- * Partner links only for roles that may open the Partners list.
+ * Task boxes open the Tasks list for that person (DEC-289). Links only for roles that may
+ * open those lists.
  */
 export function StaffSummary({ member }: { member: StaffDetail }) {
   const can = useCan();
@@ -25,6 +26,9 @@ export function StaffSummary({ member }: { member: StaffDetail }) {
 
   const partnersHref = (params: Record<string, string>) =>
     canSeePartners ? `/partners?${query(params)}` : undefined;
+  // Task boxes open the matching Tasks list (DEC-289).
+  const tasksHref = (params: Record<string, string>) =>
+    can("tasks.view") ? `/tasks?${query(params)}` : undefined;
 
   const team: { label: string; value: number; hint?: string; href?: string }[] = [];
   if (counts && role === "zonal_head") {
@@ -86,17 +90,20 @@ export function StaffSummary({ member }: { member: StaffDetail }) {
             label="Tasks to do"
             value={formatCount(tasks.pending)}
             hint="Given to them, not finished"
+            href={tasksHref({ assignedToId: member.id, status: "unfinished" })}
           />
           <StatCard
             label="Tasks overdue"
             value={formatCount(tasks.overdue)}
             hint="Due day has passed"
             attention={tasks.overdue > 0}
+            href={tasksHref({ assignedToId: member.id, overdue: "true" })}
           />
           <StatCard
             label="Tasks they gave"
             value={formatCount(tasks.givenOpen)}
             hint="Still open"
+            href={tasksHref({ assignedById: member.id, status: "unfinished" })}
           />
         </>
       ) : null}

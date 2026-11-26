@@ -1,12 +1,13 @@
 "use client";
 
-import { ArrowRightLeft, ChevronDown, Pencil, Power, PowerOff } from "lucide-react";
+import { ArrowRightLeft, ChevronDown, Pencil, Power, PowerOff, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { EditStaffDialog } from "@/components/staff/actions/EditStaffDialog";
 import { MoveStaffDialog } from "@/components/staff/actions/MoveStaffDialog";
+import { EditAreasDialog } from "@/components/sub-admins/EditAreasDialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,7 +23,7 @@ import { staffActionsFor } from "@/lib/staff/staffRules";
 import { useAuthStore } from "@/stores/auth.store";
 import type { StaffDetail } from "@/types/staff";
 
-type Open = "edit" | "move" | "toggle" | null;
+type Open = "edit" | "areas" | "move" | "toggle" | null;
 
 /** What switching off means for each role (DEC-065), shown before confirming. */
 function switchOffText(member: StaffDetail): string {
@@ -39,7 +40,8 @@ function switchOffText(member: StaffDetail): string {
 }
 
 /**
- * "Actions" on a staff member's page (F6 T3): Edit, Move, Switch off / on — each shown
+ * "Actions" on a staff member's page (F6 T3): Edit, Edit areas (Sub-Admins, Admin only,
+ * F13 DEC-302), Move, Switch off / on — each shown
  * only when this person may do it (`staffActionsFor`); the server checks again and its
  * refusal (open tasks, open requests, a team left …) is shown as its own message.
  * Pop-ups mount only while open, so each opening starts fresh.
@@ -50,7 +52,9 @@ export function StaffActionsMenu({ member }: { member: StaffDetail }) {
   const [open, setOpen] = useState<Open>(null);
   const { deactivate, reactivate } = useStaffActions(member.id);
   const flags = staffActionsFor(user ? { id: user.id, role: user.role.key } : null, can, member);
-  if (!flags.edit && !flags.move && !flags.toggle) return null;
+  // Sub-Admin areas: the Admin only (sub_admins.manage), any status (DEC-301, DEC-302).
+  const canEditAreas = member.role.key === "sub_admin" && can("sub_admins.manage");
+  if (!flags.edit && !flags.move && !flags.toggle && !canEditAreas) return null;
 
   const isOff = member.status === "deactivated";
   const toggle = isOff ? reactivate : deactivate;
@@ -82,6 +86,12 @@ export function StaffActionsMenu({ member }: { member: StaffDetail }) {
               Edit details
             </DropdownMenuItem>
           ) : null}
+          {canEditAreas ? (
+            <DropdownMenuItem onClick={() => setOpen("areas")}>
+              <ShieldCheck />
+              Edit areas
+            </DropdownMenuItem>
+          ) : null}
           {flags.move ? (
             <DropdownMenuItem onClick={() => setOpen("move")}>
               <ArrowRightLeft />
@@ -92,7 +102,7 @@ export function StaffActionsMenu({ member }: { member: StaffDetail }) {
           ) : null}
           {flags.toggle ? (
             <>
-              {flags.edit || flags.move ? <DropdownMenuSeparator /> : null}
+              {flags.edit || flags.move || canEditAreas ? <DropdownMenuSeparator /> : null}
               {isOff ? (
                 <DropdownMenuItem onClick={() => setOpen("toggle")}>
                   <Power />
@@ -111,6 +121,9 @@ export function StaffActionsMenu({ member }: { member: StaffDetail }) {
 
       {open === "edit" ? (
         <EditStaffDialog member={member} open onOpenChange={(next) => !next && close()} />
+      ) : null}
+      {open === "areas" ? (
+        <EditAreasDialog subAdmin={member} open onOpenChange={(next) => !next && close()} />
       ) : null}
       {open === "move" ? (
         <MoveStaffDialog member={member} open onOpenChange={(next) => !next && close()} />

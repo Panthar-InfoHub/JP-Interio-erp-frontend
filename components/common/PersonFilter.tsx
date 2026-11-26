@@ -14,9 +14,16 @@ import {
   type PeopleKind,
   type PersonOption,
 } from "@/hooks/data/usePeopleSearch";
+import { roleLabel } from "@/lib/auth/roles";
 import { formatCount } from "@/lib/format/number";
-import { HANDLER_ROLE_LABELS } from "@/lib/labels/request";
 import { cn } from "@/lib/utils";
+import type { RoleKey } from "@/types/auth";
+
+const KIND_LABELS: Record<PeopleKind, string> = {
+  asm: "ASMs",
+  handler: "Handlers",
+  staff: "Staff",
+};
 
 interface PersonFilterProps {
   kind: PeopleKind;
@@ -29,24 +36,34 @@ interface PersonFilterProps {
   zoneId: string | null;
   /** The button's text with nobody chosen, e.g. "Any ASM team". */
   placeholder: string;
+  /** Offer only these roles (e.g. whom I may give a task to, DEC-291). */
+  roles?: readonly RoleKey[];
+  /** Hide the clear (×) button, e.g. when a person must be chosen in a form. */
+  clearable?: boolean;
+  /** The trigger button's id (for a form label) and error state. */
+  id?: string;
+  invalid?: boolean;
   className?: string;
 }
 
 function PeopleList({
   kind,
   zoneId,
+  roles,
   selectedId,
   onSelect,
 }: {
   kind: PeopleKind;
   zoneId: string | null;
+  roles?: readonly RoleKey[];
   selectedId: string | null;
   onSelect: (person: PersonOption) => void;
 }) {
   const [search, setSearch] = useState("");
   const deferred = useDeferredValue(search);
   const people = usePeopleSearch(kind, deferred, zoneId);
-  const items = people.data?.items ?? [];
+  const all = people.data?.items ?? [];
+  const items = roles ? all.filter((person) => roles.includes(person.role)) : all;
 
   return (
     <div className="grid gap-2">
@@ -68,7 +85,7 @@ function PeopleList({
       </div>
       <ul
         role="listbox"
-        aria-label={kind === "asm" ? "ASMs" : "Handlers"}
+        aria-label={KIND_LABELS[kind]}
         aria-busy={people.isFetching}
         className={cn(
           "flex max-h-72 flex-col gap-0.5 overflow-y-auto rounded-lg border p-1 transition-opacity",
@@ -110,7 +127,7 @@ function PeopleList({
                   <span className="grid min-w-0 flex-1">
                     <span className="break-words">{person.name ?? "Unnamed"}</span>
                     <span className="text-xs text-muted-foreground">
-                      {HANDLER_ROLE_LABELS[person.role]}
+                      {roleLabel(person.role)}
                       {person.zoneName ? ` · ${person.zoneName}` : ""}
                     </span>
                   </span>
@@ -131,8 +148,9 @@ function PeopleList({
 }
 
 /**
- * A list filter that picks one ASM (or one handler: ASM or Sales Executive) by searching
- * names on the server (DEC-281). Active people only; limited to `zoneId` when set.
+ * A list filter that picks one ASM, one handler (ASM or Sales Executive) or one staff
+ * member (task doer / giver) by searching names on the server (DEC-281, DEC-290). Active
+ * people only; limited to `zoneId` when set.
  */
 export function PersonFilter({
   kind,
@@ -141,6 +159,10 @@ export function PersonFilter({
   onChange,
   zoneId,
   placeholder,
+  roles,
+  clearable = true,
+  id,
+  invalid,
   className,
 }: PersonFilterProps) {
   const [open, setOpen] = useState(false);
@@ -151,7 +173,9 @@ export function PersonFilter({
         <PopoverTrigger
           render={
             <Button
+              id={id}
               variant="outline"
+              aria-invalid={invalid || undefined}
               className={cn(
                 "min-w-0 flex-1 justify-start font-normal",
                 !value && "text-muted-foreground",
@@ -168,6 +192,7 @@ export function PersonFilter({
             <PeopleList
               kind={kind}
               zoneId={zoneId}
+              roles={roles}
               selectedId={value}
               onSelect={(person) => {
                 onChange(person);
@@ -177,7 +202,7 @@ export function PersonFilter({
           ) : null}
         </PopoverContent>
       </Popover>
-      {value ? (
+      {value && clearable ? (
         <Button
           variant="ghost"
           size="icon"

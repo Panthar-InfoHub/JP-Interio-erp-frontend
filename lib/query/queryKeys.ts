@@ -73,7 +73,29 @@ export const queryKeys = {
     partner: (partnerId: string, query: Record<string, string | number>) =>
       ["requests", "partner", partnerId, query] as const,
   },
-  /** Searchable staff pickers (ASM / handler filters). */
+  tasks: {
+    all: ["tasks"] as const,
+    list: (query: Record<string, string | number>) => ["tasks", "list", query] as const,
+    detail: (id: string) => ["tasks", "detail", id] as const,
+    mine: (query: { view: string; page: number; limit: number }) =>
+      ["tasks", "mine", query] as const,
+    categories: ["tasks", "categories"] as const,
+  },
+  tickets: {
+    all: ["tickets"] as const,
+    queue: (query: Record<string, string | number>) => ["tickets", "queue", query] as const,
+    detail: (id: string) => ["tickets", "detail", id] as const,
+    categories: ["tickets", "categories"] as const,
+  },
+  settings: {
+    all: ["settings"] as const,
+  },
+  subAdmins: {
+    all: ["sub-admins"] as const,
+    list: ["sub-admins", "list"] as const,
+    areas: (id: string) => ["sub-admins", "areas", id] as const,
+  },
+  /** Searchable staff pickers (ASM / handler / staff filters). */
   people: {
     search: (kind: string, zoneId: string | null, search: string) =>
       ["people", kind, zoneId, search] as const,

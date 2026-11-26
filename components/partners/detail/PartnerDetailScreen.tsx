@@ -15,6 +15,7 @@ import { PartnerPayoutsTab } from "@/components/partners/detail/PartnerPayoutsTa
 import { PartnerPointsTab } from "@/components/partners/detail/PartnerPointsTab";
 import { PartnerRequestsTab } from "@/components/partners/detail/PartnerRequestsTab";
 import { PartnerSummary } from "@/components/partners/detail/PartnerSummary";
+import { PartnerTicketsTab } from "@/components/partners/detail/PartnerTicketsTab";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCan } from "@/hooks/auth/usePermission";
@@ -47,11 +48,21 @@ function DetailSkeleton() {
   );
 }
 
-type Tab = "details" | "kyc" | "accounts" | "points" | "scans" | "payouts" | "requests" | "history";
+type Tab =
+  | "details"
+  | "kyc"
+  | "accounts"
+  | "points"
+  | "scans"
+  | "payouts"
+  | "requests"
+  | "tickets"
+  | "history";
 
 /**
- * Partner 360 (any state). Header + summary boxes, then tabs (DEC-240, DEC-258):
- * Details · KYC documents · Payout accounts · Points · Scans · Payouts · Requests · History, each
+ * Partner 360 (any state). Header + summary boxes, then tabs (DEC-240, DEC-258, DEC-297):
+ * Details · KYC documents · Payout accounts · Points · Scans · Payouts · Requests · Tickets ·
+ * History, each
  * shown only to roles allowed to see it. The open tab is kept as `?tab=`.
  */
 export function PartnerDetailScreen() {
@@ -103,6 +114,8 @@ export function PartnerDetailScreen() {
     ...(data.payouts ? [{ value: "payouts" as const, label: "Payouts" }] : []),
     // Shown when the server sends the requests box (requests.view, in scope, DEC-283).
     ...(data.requests ? [{ value: "requests" as const, label: "Requests" }] : []),
+    // Shown when the server sends the tickets box (the Admin only, DEC-297).
+    ...(data.tickets ? [{ value: "tickets" as const, label: "Tickets" }] : []),
     { value: "history", label: "History" },
   ];
   const requested = searchParams.get("tab");
@@ -137,6 +150,9 @@ export function PartnerDetailScreen() {
           {tab === "scans" ? <PartnerScansTab partnerId={data.partnerId} /> : null}
           {tab === "payouts" ? <PartnerPayoutsTab partnerId={data.partnerId} /> : null}
           {tab === "requests" ? <PartnerRequestsTab partnerId={data.partnerId} /> : null}
+          {tab === "tickets" && data.tickets ? (
+            <PartnerTicketsTab partnerId={data.partnerId} box={data.tickets} />
+          ) : null}
           {tab === "history" ? <PartnerHistoryTab partner={data} /> : null}
         </TabsContent>
       </Tabs>

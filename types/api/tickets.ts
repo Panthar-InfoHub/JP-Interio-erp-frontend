@@ -95,6 +95,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tickets/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ticket categories (Admin)
+         * @description **Admin, `tickets.handle`, web console** (DEC-295). The same 6 codes and names as `GET /partner/tickets/categories`, for the queue's filter.
+         */
+        get: operations["adminTicketCategories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tickets/{id}": {
         parameters: {
             query?: never;
@@ -562,6 +582,8 @@ export interface operations {
                 category?: components["schemas"]["TicketCategory"];
                 /** @description e.g. `TKT-2026-0003`, `0003`, a name, or part of a phone number */
                 search?: string;
+                /** @description One partner's tickets (Partner 360 Tickets tab, DEC-295). The `counts` still cover **all** tickets; Partner 360's `tickets` box has this partner's counts. */
+                partnerId?: string;
             };
             header?: never;
             path?: never;
@@ -596,6 +618,33 @@ export interface operations {
                 };
             };
             400: components["responses"]["ValidationError"];
+            401: components["responses"]["NotLoggedIn"];
+            403: components["responses"]["Forbidden"];
+        };
+    };
+    adminTicketCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The categories */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuccessEnvelope"] & {
+                        data?: {
+                            code: components["schemas"]["TicketCategory"];
+                            label: string;
+                        }[];
+                    };
+                };
+            };
             401: components["responses"]["NotLoggedIn"];
             403: components["responses"]["Forbidden"];
         };
