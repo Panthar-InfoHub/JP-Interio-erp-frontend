@@ -242,12 +242,56 @@ export interface components {
                 code: string;
                 /** @example Marine BWP 18mm */
                 productName: string;
+                /**
+                 * @description Product photo (0.3.0, DEC-321)
+                 * @example https://pub-xxxx.r2.dev/dev/products/0196f6a0-.../2fa63906-....jpg
+                 */
+                imageUrl: string;
             } | null;
             /**
              * Format: uuid
              * @description Cash-out lines only (Module 10)
              */
             payoutId: string | null;
+            /**
+             * @description Cash-out lines only (0.3.0, G11, DEC-318): the payout **as it is now** (a `hold` line of a payout that was
+             *     later paid shows `status: paid`). Open the full payout with `GET /partner/payouts/{payoutId}`.
+             *     The account is the copy made at request time: a bank account gives `bankName` + `accountLast4`
+             *     (the full number is never here), a UPI ID gives `upiId`.
+             */
+            payout: {
+                /** @example PAY-2026-000123 */
+                payoutNo: string;
+                /** @enum {string} */
+                status: "requested" | "approved" | "paid" | "declined" | "failed";
+                /**
+                 * @description The account the partner picked
+                 * @enum {string}
+                 */
+                method: "bank" | "upi";
+                /**
+                 * @description Bank only (may be empty)
+                 * @example HDFC Bank
+                 */
+                bankName: string | null;
+                /**
+                 * @description Bank only
+                 * @example 4019
+                 */
+                accountLast4: string | null;
+                /**
+                 * @description UPI only
+                 * @example ramesh@okaxis
+                 */
+                upiId: string | null;
+                /**
+                 * @description UTR / reference once paid (none for cash)
+                 * @example 429188402910
+                 */
+                transactionId: string | null;
+                declineReason: string | null;
+                failureReason: string | null;
+            } | null;
             /** Format: date-time */
             createdAt: string;
         };
